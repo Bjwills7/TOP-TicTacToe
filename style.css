@@ -31,3 +31,10 @@ body {
     justify-content: center;
     align-items: center;
 }
+
+@media (min-width: 1200px) {
+    .game-board {
+        height: 90%;
+        width: unset;
+    }
+}
