@@ -1,8 +1,8 @@
-const gameBoard = (function() {
-    const board = ['x', 'o', 'x', 'o', 'x', 'o', 'x', 'o', 'x'];
+const GameBoard = function() {
+    const board = [];
     let cellNodes = Array.from(document.querySelector('.game-board').children);
-    function updateArr(target) {
-        
+    function updateArr(e, name) {
+        board[e.target.dataset.index] = name;
     };
     function render() {
         cellNodes.forEach( cell => {
@@ -12,30 +12,47 @@ const gameBoard = (function() {
     function initListeners() {
         cellNodes.forEach( cell => {
             cell.addEventListener('click', (e) => {
-                console.log(e.target);
+                updateArr(e, players.getName());
+                render();
+                players.changePlayer();
             })
         })
     };
     return {initListeners, render};
-})();
+};
 
+const Game = function() {
+    
+}
 
-
-const player = (function() {
-    let t = 'test';
+const Player = function() {
+    let instances = [];
+    let currentPlayer;
     // player constructor
     function add(name) {
         let instance = Object.create(this);
         instance.name = name;
+        instances.push(instance);
+        currentPlayer = instances[0];
         return instance;
     }
-    function choose() {
-        
+    function getName() {
+        return currentPlayer.name;
     }
-    return {add};
-})();
+    function changePlayer() {
+        if (currentPlayer === instances[0]) {
+            currentPlayer = instances[1]
+        } else {
+            currentPlayer = instances[0]
+        }
+    }
+    return {add, changePlayer, getName};
+};
 const displayControl = (function() {
     
 })();
 
-let newP = player.add('jeff');
+let players = Player();
+let player1 = players.add('x');
+let player2 = players.add('o');
+let gameBoard = GameBoard();
