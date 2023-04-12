@@ -6,6 +6,16 @@ html, body {
 
 body {
     background-color: rgb(161, 161, 161);
+    display: flex;
+    justify-content: center;
+}
+
+.buttons {
+    display: flex;
+    align-items: end;
+    height: 20%; 
+    width: 90%;
+
 }
 
 .game-board {
