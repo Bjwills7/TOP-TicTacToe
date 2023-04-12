@@ -11,6 +11,7 @@ const GameBoard = function() {
         }
     }
     function updateArr(e, name) {
+        if (board[e.target.dataset.index] !== undefined) return;
         board[e.target.dataset.index] = name;
     };
     return {updateArr, getBoard, reset, isFull};
@@ -27,11 +28,11 @@ const Game = function() {
         let instances = players.getPlayers();
         activePlayer === instances[0] ? activePlayer = instances[1] : activePlayer = instances[0]
     }
-    function play() {
+    function playGame() {
         reset();
         changePlayer();
     }
-    function checkBoard() {
+    function checkForWinner() {
         let board = gameBoard.getBoard();
         let c = getPlayer();
         for (let i = 0; i < board.length; i += 3) {
@@ -53,7 +54,7 @@ const Game = function() {
             console.log(`It's a tie!`);
         }
     }
-    return {getPlayer, changePlayer, reset, play, checkBoard}
+    return {getPlayer, changePlayer, reset, playGame, checkForWinner}
 }
 
 const DisplayControl = function() {
@@ -64,7 +65,7 @@ const DisplayControl = function() {
             cell.addEventListener('click', (e) => {
                 gameBoard.updateArr(e, game.getPlayer());
                 render();
-                game.checkBoard();
+                game.checkForWinner();
                 game.changePlayer();
             })
         })
@@ -85,11 +86,16 @@ const DisplayControl = function() {
             cell.textContent = gameBoard.getBoard()[cell.dataset.index];
         })
     };
+    function renderMessage(msg) {
+        let display = document.querySelector('.message-text');
+        display.textContent = msg;
+    }
     function initButtons() {
         let playBtn = document.querySelector('.play');
         playBtn.addEventListener('click', () => {
+            renderMessage();
             enableClicks();
-            game.play()
+            game.playGame()
         })
     }
     initListeners();
@@ -114,9 +120,9 @@ const Player = function() {
     return {add, getPlayers, getName};
 };
 
-let players = Player();
-let player1 = players.add('x');
-let player2 = players.add('o');
-let gameBoard = GameBoard();
-let game = Game();
-let displayControl = DisplayControl();
+const players = Player();
+const player1 = players.add('x');
+const player2 = players.add('o');
+const gameBoard = GameBoard();
+const game = Game();
+const displayControl = DisplayControl();
