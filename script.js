@@ -113,7 +113,7 @@ const Player = function () {
   let instances = [];
   let activePlayer;
   const getPlayer = () => activePlayer.name;
-  const getPlayers = () => instances;
+  const getPlayers = () => instances.map((x) => x);
   function changePlayer() {
     activePlayer === instances[0]
       ? (activePlayer = instances[1])
@@ -121,6 +121,7 @@ const Player = function () {
   }
   // player constructor
   function add(name) {
+    if (instances.length > 2) return;
     let instance = Object.create(this);
     instance.name = name;
     instances.push(instance);
