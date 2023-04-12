@@ -68,6 +68,7 @@ const DisplayControl = function() {
                 game.changePlayer();
             })
         })
+        disableClicks();
     };
     function disableClicks() {
         cellNodes.forEach( cell => {
@@ -84,8 +85,16 @@ const DisplayControl = function() {
             cell.textContent = gameBoard.getBoard()[cell.dataset.index];
         })
     };
+    function initButtons() {
+        let playBtn = document.querySelector('.play');
+        playBtn.addEventListener('click', () => {
+            enableClicks();
+            game.play()
+        })
+    }
     initListeners();
-    return {render, reset, removeListeners}
+    initButtons();
+    return {render, reset}
 };
 
 const Player = function() {
