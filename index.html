@@ -15,14 +15,14 @@
     <div class="buttons">
       <button class="play">Play Game!</button>
     </div>
-    <form class="modal" action="">
+    <form class="modal" data-visible="false" action="">
       <label for="player-one">Player 1</label>
-      <input type="text" />
+      <input class="input-one" type="text" placeholder="Enter your name here" />
       <label for="player-two">Player 2</label>
-      <input type="text" />
+      <input class="input-two" type="text" placeholder="Enter your name here" />
       <button class="submit-players">Submit</button>
     </form>
-    <div class="game-board">
+    <div class="game-board" data-visible="true">
       <div class="cell" data-index="0"></div>
       <div class="cell" data-index="1"></div>
       <div class="cell" data-index="2"></div>
