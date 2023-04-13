@@ -22,7 +22,7 @@ const Game = function () {
     gameBoard.reset();
     displayControl.reset();
   }
-  function checkForWinner() {
+  function playRound() {
     let board = gameBoard.getBoard();
     let c = players.getPlayerChar();
     let name = players.getPlayerName();
@@ -50,14 +50,18 @@ const Game = function () {
     ) {
       displayControl.renderMessage(`${name} wins!`);
       displayControl.disableClicks();
+      return;
     } else if (gameBoard.isFull()) {
       displayControl.renderMessage(
         `It's a tie! Press the reset button to play again.`
       );
       displayControl.disableClicks();
+      return;
     }
+    players.changePlayer();
+    displayControl.renderMessage(`${players.getPlayerName()}'s turn!`);
   }
-  return { reset, checkForWinner };
+  return { reset, playRound };
 };
 
 const DisplayControl = function () {
@@ -68,8 +72,7 @@ const DisplayControl = function () {
       cell.addEventListener("click", (e) => {
         gameBoard.updateArr(e, players.getPlayerChar());
         render();
-        game.checkForWinner();
-        players.changePlayer();
+        game.playRound();
       });
     });
     disableClicks();
@@ -116,6 +119,7 @@ const DisplayControl = function () {
   function initButtons() {
     let playBtn = document.querySelector(".play");
     let submitPlayers = document.querySelector(".submit-players");
+    let resetBtn = document.querySelector(".reset");
     playBtn.addEventListener("click", () => {
       toggleForm();
       renderMessage();
@@ -127,6 +131,11 @@ const DisplayControl = function () {
       renderMessage();
       enableClicks();
       game.reset();
+    });
+    resetBtn.addEventListener("click", () => {
+      game.reset();
+      enableClicks();
+      renderMessage();
     });
   }
   initListeners();
