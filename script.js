@@ -1,4 +1,4 @@
-const GameBoard = function () {
+const gameBoard = (function () {
   const board = [];
   const reset = () => board.splice(0, board.length);
   const getBoard = () => board.map((x) => x);
@@ -15,7 +15,7 @@ const GameBoard = function () {
     board[e.target.dataset.index] = char;
   }
   return { updateArr, getBoard, reset, isFull };
-};
+})();
 
 const Game = function () {
   function reset() {
@@ -150,7 +150,7 @@ const DisplayControl = function () {
   };
 };
 
-const Player = function () {
+const players = (function () {
   let instances = [];
   let activePlayer;
   const getPlayerChar = () => activePlayer.char;
@@ -185,9 +185,7 @@ const Player = function () {
     getPlayerChar,
     getPlayerName,
   };
-};
+})();
 
-const players = Player();
-const gameBoard = GameBoard();
 const game = Game();
 const displayControl = DisplayControl();
