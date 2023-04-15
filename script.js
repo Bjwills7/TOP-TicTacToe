@@ -23,45 +23,49 @@ const Game = function () {
     displayControl.reset();
   }
   function playRound() {
-    let board = gameBoard.getBoard();
-    let c = players.getPlayerChar();
-    let name = players.getPlayerName();
+    let gameStatus = isGameOver(
+      gameBoard.getBoard(),
+      players.getPlayerChar(),
+      players.getPlayerName()
+    );
+    if (gameStatus.gameOver) {
+      displayControl.renderMessage(gameStatus.message);
+      displayControl.disableClicks();
+    } else {
+      players.changePlayer();
+      displayControl.renderMessage(`${players.getPlayerName()}'s turn!`);
+    }
+  }
+  function isGameOver(board, c, name) {
+    let message;
     for (let i = 0; i < board.length; i += 3) {
       if (board[i] === c && board[i + 1] === c && board[i + 2] === c) {
-        displayControl.renderMessage(
-          `${name} Wins! Press the reset button to play again.`
-        );
-        displayControl.disableClicks();
-        return;
+        message = `${name} Wins! Press the reset button to play again.`;
+        return { gameOver: true, name, message };
       }
     }
     for (let i = 0; i < 3; i++) {
       if (board[i] === c && board[i + 3] === c && board[i + 6] === c) {
-        displayControl.renderMessage(
-          `${name} Wins! Press the reset button to play again.`
-        );
-        displayControl.disableClicks();
-        return;
+        message = `${name} Wins! Press the reset button to play again.`;
+        return { gameOver: true, name, message };
       }
     }
     if (
       (board[0] === c && board[4] === c && board[8] === c) ||
       (board[2] === c && board[4] === c && board[6] === c)
     ) {
-      displayControl.renderMessage(`${name} wins!`);
-      displayControl.disableClicks();
-      return;
+      message = `${name} Wins! Press the reset button to play again.`;
+      return { gameOver: true, name, message };
     } else if (gameBoard.isFull()) {
-      displayControl.renderMessage(
-        `It's a tie! Press the reset button to play again.`
-      );
-      displayControl.disableClicks();
-      return;
+      message = `It's a tie! Press the reset button to play again.`;
+      return { gameOver: true, message };
     }
-    players.changePlayer();
-    displayControl.renderMessage(`${players.getPlayerName()}'s turn!`);
+    return { gameOver: false };
+    // implement these in new playRound method
+    // players.changePlayer();
+    // displayControl.renderMessage(`${players.getPlayerName()}'s turn!`);
   }
-  return { reset, playRound };
+  return { reset, isGameOver, playRound };
 };
 
 const DisplayControl = function () {
