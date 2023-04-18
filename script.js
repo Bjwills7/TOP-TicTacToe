@@ -2,6 +2,14 @@ const gameBoard = (function () {
   const board = [];
   const reset = () => board.splice(0, board.length);
   const getBoard = () => board.map((x) => x);
+  const getPlayableCells = () => {
+    let tempBoard = getBoard();
+    let indexList = [];
+    for (let i = 0; i < 9; i++) {
+      if (tempBoard[i] === undefined) indexList.push(i);
+    }
+    return indexList;
+  };
   function isFull() {
     if (board.length === 9) {
       for (let i = 0; i < board.length; i++) {
@@ -10,11 +18,11 @@ const gameBoard = (function () {
       return true;
     }
   }
-  function updateArr(e, char) {
-    if (board[e.target.dataset.index] !== undefined) return;
-    board[e.target.dataset.index] = char;
+  function updateArr(index, char) {
+    if (board[index] !== undefined) return;
+    board[index] = char;
   }
-  return { updateArr, getBoard, reset, isFull };
+  return { updateArr, getBoard, reset, isFull, getPlayableCells };
 })();
 
 const Game = function () {
@@ -61,9 +69,6 @@ const Game = function () {
       return { gameOver: true, message };
     }
     return { gameOver: false };
-    // implement these in new playRound method
-    // players.changePlayer();
-    // displayControl.renderMessage(`${players.getPlayerName()}'s turn!`);
   }
   return { reset, isGameOver, playRound };
 };
@@ -74,9 +79,10 @@ const DisplayControl = function () {
   function initListeners() {
     cellNodes.forEach((cell) => {
       cell.addEventListener("click", (e) => {
-        gameBoard.updateArr(e, players.getPlayerChar());
+        gameBoard.updateArr(e.target.dataset.index, players.getPlayerChar());
         render();
         game.playRound();
+        players.aiHandler();
       });
     });
     disableClicks();
@@ -173,12 +179,29 @@ const players = (function () {
     activePlayer = instances[0];
     return instance;
   }
+  function addAi(name) {
+    let instance = Object.create(players);
+    instance.name = name;
+    instance.ai = true;
+    instances.push(instance);
+    return instance;
+  }
+  function minimax() {}
+  function aiPlay() {
+    let choice = gameBoard.getPlayableCells()[0];
+    gameBoard.updateArr(choice, instances[1].char);
+    displayControl.render();
+    game.playRound();
+  }
+  function aiHandler() {
+    if (activePlayer.ai) aiPlay();
+  }
   function submitPlayers(name1, name2) {
     if (instances.length !== 0) {
       instances.splice(0, instances.length);
     }
     let player1 = add(name1);
-    let player2 = add(name2);
+    let player2 = addAi(name2);
     player1.char = "x";
     player2.char = "o";
   }
@@ -188,6 +211,7 @@ const players = (function () {
     changePlayer,
     getPlayerChar,
     getPlayerName,
+    aiHandler,
   };
 })();
 
