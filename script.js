@@ -2,8 +2,8 @@ const gameBoard = (function () {
   const board = [];
   const reset = () => board.splice(0, board.length);
   const getBoard = () => board.map((x) => x);
-  const getPlayableCells = () => {
-    let tempBoard = getBoard();
+  const getPlayableCells = (board) => {
+    let tempBoard = board;
     let indexList = [];
     for (let i = 0; i < 9; i++) {
       if (tempBoard[i] === undefined) indexList.push(i);
@@ -31,11 +31,7 @@ const Game = function () {
     displayControl.reset();
   }
   function playRound() {
-    let gameStatus = isGameOver(
-      gameBoard.getBoard(),
-      players.getPlayerChar(),
-      players.getPlayerName()
-    );
+    let gameStatus = isGameOver(gameBoard.getBoard(), players.getPlayer());
     if (gameStatus.gameOver) {
       displayControl.renderMessage(gameStatus.message);
       displayControl.disableClicks();
@@ -44,8 +40,10 @@ const Game = function () {
       displayControl.renderMessage(`${players.getPlayerName()}'s turn!`);
     }
   }
-  function isGameOver(board, c, name) {
+  function isGameOver(board, player) {
     let message;
+    let c = player.char;
+    let name = player.name;
     for (let i = 0; i < board.length; i += 3) {
       if (board[i] === c && board[i + 1] === c && board[i + 2] === c) {
         message = `${name} Wins! Press the reset button to play again.`;
@@ -165,6 +163,7 @@ const players = (function () {
   let activePlayer;
   const getPlayerChar = () => activePlayer.char;
   const getPlayerName = () => activePlayer.name;
+  const getPlayer = () => activePlayer;
   const getPlayers = () => instances.map((x) => x);
   function changePlayer() {
     activePlayer === instances[0]
@@ -186,15 +185,56 @@ const players = (function () {
     instances.push(instance);
     return instance;
   }
-  function minimax() {}
-  function aiPlay() {
-    let choice = gameBoard.getPlayableCells()[0];
+  function minimax(board, player) {
+    let activePlayer = player;
+    const changeLocalPlayer = () => {
+      activePlayer === instances[0]
+        ? (activePlayer = instances[1])
+        : (activePlayer = instances[0]);
+    };
+    const utility = (val) => {
+      return availSpots.length * val;
+    };
+    let availSpots = gameBoard.getPlayableCells(board);
+    if (game.isGameOver(board, activePlayer).gameOver && activePlayer.ai) {
+      return utility(1);
+    } else if (game.isGameOver(board, activePlayer).gameOver) {
+      return utility(-1);
+    } else if (
+      game.isGameOver(board, activePlayer).gameOver &&
+      !game.isGameOver(board, activePlayer).name
+    ) {
+      return 0;
+    } else if (
+      !game.isGameOver(board, activePlayer).gameOver &&
+      activePlayer.ai
+    ) {
+      let maxUtil = -Infinity;
+      availSpots.forEach((play) => {
+        let newBoard = board;
+        newBoard[play] = activePlayer.char;
+        let util = minimax(newBoard, instances[0]);
+        maxUtil = Math.max(maxUtil, util);
+      });
+      changeLocalPlayer();
+    } else if (!game.isGameOver(board, activePlayer).gameOver) {
+      let minUtil = Infinity;
+      availSpots.forEach((play) => {
+        let newBoard = board;
+        newBoard[play] = activePlayer.char;
+        let util = minimax(newBoard, instances[1]);
+        minUtil = Math.min(minUtil, util);
+      });
+      changeLocalPlayer();
+    }
+  }
+  function aiPlay(choice) {
     gameBoard.updateArr(choice, instances[1].char);
     displayControl.render();
     game.playRound();
   }
   function aiHandler() {
-    if (activePlayer.ai) aiPlay();
+    if (activePlayer.ai) aiPlay(minimax(gameBoard.getBoard(), getPlayer()));
   }
   function submitPlayers(name1, name2) {
     if (instances.length !== 0) {
@@ -211,6 +251,7 @@ const players = (function () {
     changePlayer,
     getPlayerChar,
     getPlayerName,
+    getPlayer,
     aiHandler,
   };
 })();
