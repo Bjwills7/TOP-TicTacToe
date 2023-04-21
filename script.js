@@ -64,7 +64,7 @@ const Game = function () {
       return { gameOver: true, name, message };
     } else if (gameBoard.isFull()) {
       message = `It's a tie! Press the reset button to play again.`;
-      return { gameOver: true, message };
+      return { gameOver: true, name: false, message };
     }
     return { gameOver: false };
   }
@@ -186,47 +186,59 @@ const players = (function () {
     return instance;
   }
   function minimax(board, player) {
-    let activePlayer = player;
-    const changeLocalPlayer = () => {
-      activePlayer === instances[0]
-        ? (activePlayer = instances[1])
-        : (activePlayer = instances[0]);
-    };
     const utility = (val) => {
-      return availSpots.length * val;
+      return (availSpots.length + 1) * val;
     };
+
     let availSpots = gameBoard.getPlayableCells(board);
-    if (game.isGameOver(board, activePlayer).gameOver && activePlayer.ai) {
-      return utility(1);
-    } else if (game.isGameOver(board, activePlayer).gameOver) {
-      return utility(-1);
-    } else if (
-      game.isGameOver(board, activePlayer).gameOver &&
-      !game.isGameOver(board, activePlayer).name
-    ) {
-      return 0;
-    } else if (
-      !game.isGameOver(board, activePlayer).gameOver &&
-      activePlayer.ai
-    ) {
-      let maxUtil = -Infinity;
-      availSpots.forEach((play) => {
-        let newBoard = board;
-        newBoard[play] = activePlayer.char;
-        let util = minimax(newBoard, instances[0]);
-        maxUtil = Math.max(maxUtil, util);
-      });
-      changeLocalPlayer();
-    } else if (!game.isGameOver(board, activePlayer).gameOver) {
-      let minUtil = Infinity;
-      availSpots.forEach((play) => {
-        let newBoard = board;
-        newBoard[play] = activePlayer.char;
-        let util = minimax(newBoard, instances[1]);
-        minUtil = Math.min(minUtil, util);
-      });
-      changeLocalPlayer();
+
+    if (game.isGameOver(board, instances[1]).gameOver) {
+      return { score: utility(1) };
+    } else if (game.isGameOver(board, instances[0]).gameOver) {
+      return { score: utility(-1) };
+    } else if (availSpots.length === 0) {
+      return { score: 0 };
     }
+
+    let moves = [];
+    for (let i = 0; i < availSpots.length; i++) {
+      let move = {};
+      move.index = availSpots[i];
+      board[availSpots[i]] = player.char;
+
+      if (player.ai) {
+        let result = minimax(board, instances[0]);
+        console.log(result);
+        move.score = result.score;
+      } else {
+        let result = minimax(board, instances[1]);
+        move.score = result.score;
+      }
+
+      delete board[availSpots[i]];
+      moves.push(move);
+    }
+
+    let bestMove;
+    if (player.ai) {
+      var bestScore = -10;
+      moves.forEach((move) => {
+        if (move.score > bestScore) {
+          bestScore = move.score;
+          bestMove = move.index;
+        }
+      });
+    } else {
+      var bestScore = 10;
+      moves.forEach((move) => {
+        if (move.score < bestScore) {
+          bestScore = move.score;
+          bestMove = move.index;
+        }
+      });
+    }
+
+    return { score: bestScore, index: bestMove };
   }
   function aiPlay(choice) {
     gameBoard.updateArr(choice, instances[1].char);
@@ -234,7 +246,8 @@ const players = (function () {
     game.playRound();
   }
   function aiHandler() {
-    if (activePlayer.ai) aiPlay(minimax(gameBoard.getBoard(), getPlayer()));
+    if (activePlayer.ai)
+      aiPlay(minimax(gameBoard.getBoard(), getPlayer()).index);
   }
   function submitPlayers(name1, name2) {
     if (instances.length !== 0) {
