@@ -208,7 +208,6 @@ const players = (function () {
 
       if (player.ai) {
         let result = minimax(board, instances[0]);
-        console.log(result);
         move.score = result.score;
       } else {
         let result = minimax(board, instances[1]);
