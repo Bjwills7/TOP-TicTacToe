@@ -142,6 +142,7 @@ const DisplayControl = function () {
     });
     resetBtn.addEventListener("click", () => {
       game.reset();
+      players.playerReset();
       enableClicks();
       renderMessage();
     });
@@ -257,6 +258,7 @@ const players = (function () {
     player1.char = "x";
     player2.char = "o";
   }
+  const playerReset = () => (activePlayer = instances[0]);
   return {
     submitPlayers,
     getPlayers,
@@ -264,6 +266,7 @@ const players = (function () {
     getPlayerChar,
     getPlayerName,
     getPlayer,
+    playerReset,
     aiHandler,
   };
 })();
